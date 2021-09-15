@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useForm } from 'react-hook-form';
-import { chooseName, choosePrice } from '../redux/slices/rootSlice';
+import { chooseName, choosePrice, chooseColor, chooseMiles, chooseModel, chooseSpeed, chooseYear } from '../redux/slices/rootSlice';
 import { Input } from '../sharedComponents';
 import { Button } from '@material-ui/core';
 import { server_calls } from '../api';
@@ -14,6 +14,11 @@ interface CarFormProps{
 
 interface CarState {
     make: string;
+    model: string;
+    color: string;
+    year: string;
+    speed: string;
+    miles: string;
     price: string;
 }
 
@@ -25,6 +30,11 @@ export const CarForm = (props:CarFormProps) => {
     const store = useStore();
 
     const make = useSelector<CarState>(state => state.make)
+    const model = useSelector<CarState>(state => state.model)
+    const color = useSelector<CarState>(state => state.color)
+    const year = useSelector<CarState>(state => state.year)
+    const speed = useSelector<CarState>(state => state.speed)
+    const miles = useSelector<CarState>(state => state.miles)
     const price = useSelector<CarState>(state => state.price)
 
     const { register, handleSubmit } = useForm({ })
@@ -39,6 +49,11 @@ export const CarForm = (props:CarFormProps) => {
             event.target.reset();
         } else{
             dispatch(chooseName(data.make))
+            dispatch(chooseModel(data.model))
+            dispatch(chooseColor(data.color))
+            dispatch(chooseYear(data.year))
+            dispatch(chooseSpeed(data.max_speed))
+            dispatch(chooseMiles(data.miles_per_gallon))
             dispatch(choosePrice(data.price))
             await server_calls.create(store.getState())
             window.location.reload()

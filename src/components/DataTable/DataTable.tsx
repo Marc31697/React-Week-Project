@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {DataGrid, GridColDef, GridValueGetterParams } from '@material-ui/data-grid'
+import {DataGrid, GridColDef, GridSelectionModel } from '@material-ui/data-grid'
 import { server_calls } from '../api';
 import { useGetData } from '../../components/custom-hooks';
 import { Button,
@@ -57,18 +57,11 @@ const columns: GridColDef[] = [
       editable: true,
     },
   ];
-  
-
-interface gridData{
-  data:{
-    id?:string;
-  }
-}
 
 export const DataTable = () => {
   let {carData, getData} = useGetData();
   let [open, setOpen] = useState(false)
-  let [gridData, setData] = useState<gridData>({data:{}})
+  let [gridData, setData] = useState<GridSelectionModel>([])
 
   let handleOpen = () => {
     setOpen(true)
@@ -78,24 +71,27 @@ export const DataTable = () => {
   }
 
   let deleteData = () => {
-    server_calls.delete(gridData.data.id!)
+    server_calls.delete(`${gridData[0]}`)
     getData()
   }
-  console.log(gridData.data.id)
 
     return (
         <div style={{ height: 400, width: '100%' }}>
-            <h2>Cars in Inventory1</h2>
-            <DataGrid rows ={carData} columns={columns} pageSize={5} checkboxSelection/>
+            <h2>Cars in Inventory</h2>
+            <DataGrid rows ={carData} columns={columns} pageSize={5} checkboxSelection onSelectionModelChange={(newSelectionModel) => {
+            setData(newSelectionModel);
+            }}
+            selectionModel={gridData}
+            {...carData}/>
             <Button onClick={handleOpen}>Update</Button>
             <Button variant="contained" color='secondary' onClick={deleteData}>Delete</Button>
 
             {/* Dialog Pop up starts here */}
             <Dialog open={open} onClose={handleClose} aria-labelledby='form-dialog-title'>
-              <DialogTitle id='form-dialog-title'>Update Car {gridData.data.id}</DialogTitle>
+              <DialogTitle id='form-dialog-title'>Update Car {gridData[0]}</DialogTitle>
               <DialogContent>
-                <DialogContentText>Car: {gridData.data.id}</DialogContentText>
-                <CarForm id={gridData.data.id!} />
+                <DialogContentText>Car: {gridData[0]}</DialogContentText>
+                <CarForm id={`${gridData[0]}`} />
               </DialogContent>
                 <Button onClick = {handleClose} color='primary'>Cancel</Button>
             </Dialog>
